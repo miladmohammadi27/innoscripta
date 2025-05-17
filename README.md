@@ -11,7 +11,7 @@ flowchart TD
     C --> D
     D --> E[Ledger Logger]
     E --> F[NoSQL Ledger
-    MongoDB]
+    MongoDB]```
 
 
 --- 
