@@ -3,12 +3,15 @@
 
 ```mermaid
 flowchart TD
-    A[API Gateway] --> B[Transaction API<br>(Handle Transactions)]
-    A --> C[Backoffice API<br>(Users Management)]
+    A[API Gateway] --> B[Transaction API
+    (Handle Transactions)]
+    A --> C[Backoffice API
+    (Users Management)]
     B --> D[Queue Broker]
     C --> D
     D --> E[Ledger Logger]
-    E --> F[NoSQL Ledger<br>MongoDB]
+    E --> F[NoSQL Ledger
+    MongoDB]
 
 
 --- 
