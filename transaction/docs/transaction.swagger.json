@@ -1,0 +1,157 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Banking Transaction",
+    "version": "3.0.0"
+  },
+  "tags": [
+    {
+      "name": "BalanceService"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/balance/update": {
+      "post": {
+        "summary": "Update Account Balance",
+        "operationId": "BalanceService_UpdateBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateBalanceRes"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessage"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateBalanceReq"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "description": "API Key For Using Backoffice",
+            "in": "header",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Transaction Account Management"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "common models"
+    },
+    "v1TransactionType": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "DEPOSIT",
+        "WITHDRAWAL"
+      ],
+      "default": "UNKNOWN"
+    },
+    "v1UpdateBalanceReq": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "format": "float"
+        },
+        "userID": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "accountID": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "transactionType": {
+          "$ref": "#/definitions/v1TransactionType"
+        }
+      }
+    },
+    "v1UpdateBalanceRes": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "newBalance": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    }
+  }
+}

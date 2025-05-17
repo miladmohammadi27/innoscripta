@@ -1,0 +1,5 @@
+apiVersion: v2
+name: banking-ledger
+description: banking ledger case study 
+version: 0.0.1
+appVersion: "0.0.1"

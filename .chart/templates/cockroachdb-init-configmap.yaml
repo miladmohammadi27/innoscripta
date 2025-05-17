@@ -1,0 +1,133 @@
+# cockroachdb-init-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cockroachdb-init-script
+data:
+  init.sh: |
+      #!/bin/bash
+      
+      # Exit immediately if any command fails
+      set -e
+      
+      if [[ "$(hostname)" =~ -0$ ]]; then
+          echo "Running cluster initialization and user/db setup..."
+      
+          # Wait for CockroachDB to be ready (with timeout)
+          MAX_RETRIES=30
+          RETRY_COUNT=0
+          until cockroach sql --insecure --host=localhost -e "SELECT 1" > /dev/null 2>&1; do
+            echo "Waiting for CockroachDB to be ready... ($RETRY_COUNT/$MAX_RETRIES)"
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+              echo "CockroachDB failed to start after $MAX_RETRIES attempts. Exiting."
+              exit 1
+            fi
+            sleep 5
+          done
+      
+          echo "CockroachDB is ready. Proceeding with setup..."
+      
+          # Check if 'banking' user exists, create if not (without password in insecure mode)
+          USER_EXISTS=$(cockroach sql --insecure --host=localhost -e "SELECT count(*) FROM system.users WHERE username = 'banking';" --format=csv | tail -n 1)
+          USER_EXISTS=${USER_EXISTS:-0}
+          if [ "$USER_EXISTS" -eq "0" ]; then
+            echo "Creating banking user (no password, insecure mode)..."
+            cockroach sql --insecure --host=localhost -e "CREATE USER banking;"
+          else
+            echo "banking user already exists"
+          fi
+      
+          # Check if 'banking' database exists, create if not
+          DB_EXISTS=$(cockroach sql --insecure --host=localhost -e "SELECT count(*) FROM [SHOW DATABASES] WHERE database_name = 'banking';" --format=csv | tail -n 1)
+          DB_EXISTS=${DB_EXISTS:-0}
+          if [ "$DB_EXISTS" -eq "0" ]; then
+            echo "Creating banking database..."
+            cockroach sql --insecure --host=localhost -e "CREATE DATABASE banking;"
+            cockroach sql --insecure --host=localhost -e "GRANT ALL ON DATABASE banking TO banking;"
+          else
+            echo "Banking database already exists"
+          fi
+      
+          # Helper function to check if a table exists
+          table_exists() {
+            cockroach sql --insecure --host=localhost -d banking -e \
+              "SELECT count(*) FROM information_schema.tables WHERE table_name = '$1' AND table_schema = 'public';" --format=csv | tail -n 1
+          }
+      
+          # Helper function to check if a sequence exists
+          sequence_exists() {
+            cockroach sql --insecure --host=localhost -d banking -e \
+              "SELECT count(*) FROM information_schema.sequences WHERE sequence_name = '$1' AND sequence_schema = 'public';" --format=csv | tail -n 1
+          }
+      
+          # USER_ID_SEQ SEQUENCE
+          if [ "$(sequence_exists user_id_seq)" -eq "0" ]; then
+            echo "Creating user_id_seq sequence..."
+            cockroach sql --insecure --host=localhost -d banking -e \
+              "CREATE SEQUENCE user_id_seq START 1;"
+          else
+            echo "user_id_seq sequence already exists"
+          fi
+      
+          # USERS TABLE
+          if [ "$(table_exists users)" -eq "0" ]; then
+            echo "Creating users table..."
+            cockroach sql --insecure --host=localhost -d banking -e "
+              CREATE TABLE users (
+                    user_id INTEGER PRIMARY KEY DEFAULT nextval('user_id_seq'),
+                    name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );"
+          else
+            echo "users table already exists"
+          fi
+      
+          # ACCOUNT_ID_SEQ SEQUENCE
+          if [ "$(sequence_exists account_id_seq)" -eq "0" ]; then
+            echo "Creating account_id_seq sequence..."
+            cockroach sql --insecure --host=localhost -d banking -e \
+              "CREATE SEQUENCE account_id_seq START 10001;"
+          else
+            echo "account_id_seq sequence already exists"
+          fi
+      
+          # ACCOUNTS TABLE
+          if [ "$(table_exists accounts)" -eq "0" ]; then
+            echo "Creating accounts table..."
+            cockroach sql --insecure --host=localhost -d banking -e "
+              CREATE TABLE accounts (
+                  account_id INTEGER PRIMARY KEY DEFAULT nextval('account_id_seq'),
+                  user_id INTEGER NOT NULL REFERENCES users(user_id),
+                  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+              );"
+          else
+            echo "accounts table already exists"
+          fi
+      
+          # ACCOUNT_BALANCES TABLE
+          if [ "$(table_exists account_balances)" -eq "0" ]; then
+            echo "Creating account_balances table..."
+            cockroach sql --insecure --host=localhost -d banking -e "
+              CREATE TABLE account_balances (
+                  account_id INTEGER PRIMARY KEY REFERENCES accounts(account_id),
+                  user_id INTEGER NOT NULL REFERENCES users(user_id),
+                  balance NUMERIC(20,2) NOT NULL DEFAULT 0,
+                  version INTEGER NOT NULL DEFAULT 0,
+                  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+              );"
+          else
+            echo "account_balances table already exists"
+          fi
+      
+          # After table creation (or after all table creations)
+          echo "Granting privileges to banking user..."
+          cockroach sql --insecure --host=localhost -d banking -e "GRANT ALL ON ALL TABLES IN SCHEMA public TO banking;"
+          cockroach sql --insecure --host=localhost -d banking -e "GRANT ALL ON SCHEMA public TO banking;"
+          cockroach sql --insecure --host=localhost -d banking -e "GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO banking;"
+      
+          echo "Database setup complete!"
+      else
+          echo "Skipping cluster and database initialization on non-zero pod."
+      fi

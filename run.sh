@@ -1,0 +1,1 @@
+helm upgrade --install banking-ledger .chart --namespace development --create-namespace -f .chart/values.yaml --debug

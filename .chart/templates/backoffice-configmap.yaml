@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backoffice-config
+data:
+  BACKOFFICE_GRPC_GATEWAY_PORT: "{{ .Values.backoffice.grpc.gateway.port }}"
+  BACKOFFICE_GRPC_GATEWAY_IP: "{{ .Values.backoffice.grpc.gateway.host }}"
+  BACKOFFICE_GRPC_GATEWAY_API_KEY: "{{ .Values.backoffice.grpc.gateway.apiKey }}"
+  BACKOFFICE_CRDB_HOST: "{{ .Values.backoffice.crdb.host }}"

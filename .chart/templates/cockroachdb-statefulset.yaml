@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cockroachdb
+spec:
+  serviceName: cockroachdb
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cockroachdb
+  template:
+    metadata:
+      labels:
+        app: cockroachdb
+    spec:
+      containers:
+      - name: cockroachdb
+        image: cockroachdb/cockroach:v22.2.8
+        command:
+          - "/bin/bash"
+          - "-c"
+          - |
+            cockroach start \
+            --join=$(hostname).cockroachdb \
+            --advertise-addr=$(hostname).cockroachdb \
+            --insecure --http-addr=0.0.0.0:8080 \
+            --listen-addr=0.0.0.0 \
+            --cluster-name=distributed-cluster
+        ports:
+        - containerPort: 26257
+          name: grpc
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+         - name: cockroachdb-data
+           mountPath: /cockroach/cockroach-data
+         - name: init-script
+           mountPath: /cockroach/cockroach-init/
+        lifecycle:
+            postStart:
+              exec:
+                command: ["/cockroach/cockroach-init/init.sh"]
+      volumes:
+        - name: init-script
+          configMap:
+            name: cockroachdb-init-script
+            defaultMode: 0755
+  volumeClaimTemplates:
+  - metadata:
+      name: cockroachdb-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi

@@ -1,0 +1,33 @@
+transaction:
+  image: miladmohammadi27/banking-transaction:latest
+  port: 80
+  grpc:
+    gateway:
+      port: 80
+      host: "0.0.0.0"
+      apiKey: "test"
+  crdb:
+    host: cockroachdb-0.cockroachdb
+  nats:
+    url: nats://nats:4222
+  service:
+    port: 80
+    targetPort: 80
+
+backoffice:
+  image: miladmohammadi27/banking-backoffice:latest
+  port: 80
+  grpc:
+    gateway:
+      port: 80
+      host: "0.0.0.0"
+      apiKey: "test"
+  crdb:
+    host: cockroachdb-1.cockroachdb
+  service:
+    port: 80
+    targetPort: 80
+
+ledger:
+  image: miladmohammadi27/banking-ledger:latest
+  port: 80

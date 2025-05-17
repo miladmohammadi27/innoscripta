@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package transaction.v1;
+
+option go_package = "internal/api/grpc/dto;dto";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "3.0.0"
+    title: "Banking Transaction"
+  }
+  schemes: HTTP
+};
+enum TransactionType {
+  UNKNOWN = 0;
+  DEPOSIT = 1;
+  WITHDRAWAL = 2;
+}
+
+message UpdateBalanceReq {
+  float amount =1;
+  int32 userID =2;
+  int32 accountID =3;
+  TransactionType transactionType =4;
+}
+
+message UpdateBalanceRes {
+  int32 code = 1;
+  string message = 2;
+  float newBalance =3;
+}
+
+// common models
+message ErrorMessage {
+  uint32 code = 1;
+  string message = 2;
+}
+
+service BalanceService {
+  rpc UpdateBalance(UpdateBalanceReq) returns (UpdateBalanceRes) {
+    option (google.api.http) = {
+      post: "/balance/update"  
+      body: "*"             
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update Account Balance"
+      description: ""
+      tags: ["Transaction Account Management"]
+      parameters: {
+        headers: {
+          name: "X-API-Key"
+          description: "API Key For Using Backoffice"
+          type: STRING
+          required: true
+        }
+      }  
+      responses: {
+        key: "400"
+        value: {
+          description: "Bad Request"
+          schema: {
+            json_schema: {ref: ".transaction.v1.ErrorMessage"}
+          }
+        }
+      }
+    };
+  }
+
+}

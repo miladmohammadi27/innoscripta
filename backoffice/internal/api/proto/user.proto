@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package backoffice.v1;
+
+option go_package = "internal/api/grpc/dto;dto";
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    version: "3.0.0"
+    title: "Banking Backoffice"
+  }
+  schemes: HTTP
+};
+
+message CreateUserReq { 
+  string name = 1;
+  string email = 2;
+}
+
+message CreateUserRes { 
+  int32 code = 1;
+  string message = 2;
+  string userID = 3;
+}
+
+message CreateAccountReq {
+  string userID =1;
+}
+
+message CreateAccountRes {
+  int32 code = 1;
+  string message = 2;
+  int32 accountID =3;
+}
+
+// common models
+message ErrorMessage {
+  uint32 code = 1;
+  string message = 2;
+}
+
+service UserService {
+  rpc CreateUser(CreateUserReq) returns (CreateUserRes) {
+    option (google.api.http) = {
+      post: "/user/create"  
+      body: "*"             
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create New User"
+      description: ""
+      tags: ["Backoffice User Management"]  
+      parameters: {
+        headers: {
+          name: "X-API-Key"
+          description: "API Key For Using Backoffice"
+          type: STRING
+          required: true
+        }
+      }
+      responses: {
+        key: "400"
+        value: {
+          description: "Bad Request"
+          schema: {
+            json_schema: {ref: ".backoffice.v1.ErrorMessage"}
+          }
+        }
+      }
+    };
+  }
+
+  rpc CreateAccount(CreateAccountReq) returns (CreateAccountRes) {
+    option (google.api.http) = {
+      post: "/account/create"  
+      body: "*"             
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create New Account"
+      description: ""
+      tags: ["Backoffice Account Management"]  
+      parameters: {
+        headers: {
+          name: "X-API-Key"
+          description: "API Key For Using Backoffice"
+          type: STRING
+          required: true
+        }
+      }
+      responses: {
+        key: "400"
+        value: {
+          description: "Bad Request"
+          schema: {
+            json_schema: {ref: ".backoffice.v1.ErrorMessage"}
+          }
+        }
+      }
+    };
+  }
+}

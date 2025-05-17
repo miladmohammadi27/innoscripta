@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backoffice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backoffice
+  template:
+    metadata:
+      labels:
+        app: backoffice
+    spec:
+      containers:
+        - name: backoffice
+          image: {{ .Values.backoffice.image }}
+          ports:
+            - containerPort: {{ .Values.backoffice.port }}
+          envFrom:
+            - configMapRef:
+                name: backoffice-config
