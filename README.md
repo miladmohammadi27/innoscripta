@@ -1,18 +1,32 @@
 ## Project structure:
 
 
-```mermaid
-flowchart TD
-    A[API Gateway] --> B[Transaction API
-    (Handle Transactions)]
-    A --> C[Backoffice API
-    (Users Management)]
-    B --> D[Queue Broker]
-    C --> D
-    D --> E[Ledger Logger]
-    E --> F[NoSQL Ledger
-    MongoDB]```
-
+                +--------------------+
+                |    API Gateway     |
+                +--------+-----------+
+                         |
+         +---------------+-------------+
+         |                              |          
++--------v-------------+   +--------------------+
+| Transaction API      |   | Backoffice API     |
+|(Handle Transactions) |   | (Users Management) |
++--------+-------------+   +------------+-------+
+                |                  |
+                +---------+--------+
+                        |
+                +-------v------+
+                |  Queue Broker | 
+                +-------+------+
+                        |
+                +--------v--------+
+                | Ledger Logger   |
+                +--------+--------+
+                         |
+                         |
+                +--------v--------+
+                |  NoSQL Ledger   |
+                |     MongoDB     |
+                +-----------------+
 
 --- 
 
