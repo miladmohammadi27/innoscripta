@@ -15,5 +15,6 @@ spec:
       containers:
         - name: ledger
           image: {{ .Values.ledger.image }}
-          ports:
-            - containerPort: {{ .Values.ledger.port }}
+          envFrom:
+            - configMapRef:
+                name: ledger-config

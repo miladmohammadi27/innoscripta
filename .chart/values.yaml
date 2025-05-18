@@ -30,4 +30,7 @@ backoffice:
 
 ledger:
   image: miladmohammadi27/banking-ledger:latest
-  port: 80
+  mongo:
+    host: mongo-service
+  nats:
+    url: nats://nats:4222

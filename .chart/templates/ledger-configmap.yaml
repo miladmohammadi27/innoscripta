@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledger-config
+data:
+  LEDGER_MONGO_HOST: "{{ .Values.ledger.mongo.host }}"
+  LEDGER_NATS_URL: "{{ .Values.ledger.nats.url }}"
+
