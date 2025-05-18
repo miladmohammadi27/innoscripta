@@ -1,32 +1,7 @@
 ## Project structure:
 
 
-                +--------------------+
-                |    API Gateway     |
-                +--------+-----------+
-                         |
-         +---------------+-------------+
-         |                              |          
-+--------v-------------+   +--------------------+
-| Transaction API      |   | Backoffice API     |
-|(Handle Transactions) |   | (Users Management) |
-+--------+-------------+   +------------+-------+
-                |                  |
-                +---------+--------+
-                        |
-                +-------v------+
-                |  Queue Broker | 
-                +-------+------+
-                        |
-                +--------v--------+
-                | Ledger Logger   |
-                +--------+--------+
-                         |
-                         |
-                +--------v--------+
-                |  NoSQL Ledger   |
-                |     MongoDB     |
-                +-----------------+
+![Project Architecture](assets/arch.png)
 
 --- 
 
