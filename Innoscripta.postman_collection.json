@@ -1,0 +1,163 @@
+{
+	"info": {
+		"_postman_id": "f5ad83b1-2f15-4dd7-bf2b-73727e64d687",
+		"name": "Innoscripta",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12735719"
+	},
+	"item": [
+		{
+			"name": "Backoffice",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "test",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"milad\",\n    \"email\": \"testhhg3@test.co4bgm\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{backOfficeGW}}/user/create",
+							"host": [
+								"{{backOfficeGW}}"
+							],
+							"path": [
+								"user",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "test",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userID\": \"8\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{backOfficeGW}}/account/create",
+							"host": [
+								"{{backOfficeGW}}"
+							],
+							"path": [
+								"account",
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ledger",
+			"item": [
+				{
+					"name": "Update Balance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "test",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 300,\n    \"userID\": 8,\n    \"accountID\":10004,\n    \"transactionType\": 1// DEPOSIT = 1; WITHDRAWAL = 2;\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{transGW}}/balance/update",
+							"host": [
+								"{{transGW}}"
+							],
+							"path": [
+								"balance",
+								"update"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "backOfficeLoc",
+			"value": "localhost:8090",
+			"type": "string"
+		},
+		{
+			"key": "backOfficeGW",
+			"value": "localhost:8080/backoffice",
+			"type": "string"
+		},
+		{
+			"key": "transLoc",
+			"value": "localhost:8090",
+			"type": "string"
+		},
+		{
+			"key": "transGW",
+			"value": "localhost:8080/transaction",
+			"type": "string"
+		}
+	]
+}
